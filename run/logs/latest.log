@@ -1,0 +1,29 @@
+[11:17:05] [Server thread/INFO]: Starting minecraft server version 1.11.2
+[11:17:18] [Server thread/INFO]: Loading properties
+[11:17:18] [Server thread/INFO]: Default game type: SURVIVAL
+[11:17:18] [Server thread/INFO]: Generating keypair
+[11:17:19] [Server thread/INFO]: Starting Minecraft server on *:25565
+[11:17:19] [Server thread/INFO]: Using default channel type
+[11:17:21] [Server thread/INFO]: Preparing level "world"
+[11:17:25] [Server thread/INFO]: Preparing start region for level 0
+[11:17:26] [Server thread/INFO]: Preparing spawn area: 11%
+[11:17:28] [Server thread/INFO]: Preparing spawn area: 47%
+[11:17:29] [Server thread/INFO]: Preparing spawn area: 79%
+[11:17:30] [Server thread/INFO]: Done (8.973s)! For help, type "help" or "?"
+[11:17:43] [User Authenticator #1/INFO]: UUID of player lucifitz_liver is c7e8dc20-daf9-4c1f-9a47-7c6d5699822d
+[11:17:44] [Server thread/INFO]: lucifitz_liver[/47.144.163.237:1024] logged in with entity id 0 at (16.27078459856353, 34.0, 18.531878951412615)
+[11:17:44] [Server thread/INFO]: lucifitz_liver joined the game
+[11:17:57] [Server thread/INFO]: [lucifitz_liver: Set own game mode to Survival Mode]
+[11:18:06] [Server thread/INFO]: lucifitz_liver tried to swim in lava
+[11:19:09] [Server thread/INFO]: [lucifitz_liver: Set own game mode to Creative Mode]
+[11:20:13] [Server thread/INFO]: [lucifitz_liver: Set own game mode to Survival Mode]
+[11:21:53] [Server thread/INFO]: lucifitz_liver tried to swim in lava
+[11:22:14] [Server thread/INFO]: lucifitz_liver tried to swim in lava
+[11:24:22] [Server thread/INFO]: Stopping server
+[11:24:22] [Server thread/INFO]: Saving players
+[11:24:22] [Server thread/INFO]: Saving worlds
+[11:24:22] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
+[11:24:22] [Server thread/INFO]: Saving chunks for level 'world'/Nether
+[11:24:22] [Server thread/INFO]: Saving chunks for level 'world'/The End
+[11:24:22] [Server Shutdown Thread/INFO]: Stopping server
+[11:24:22] [Server Shutdown Thread/INFO]: Saving players

@@ -8,13 +8,25 @@ public class Player extends PlayerData {
     super(parPlayerObject);
   }
   
+  // Method continuously checks for the conditional statements within it.
   @Override
   public void onUpdate() {
+	  
+	if (Conditions.didRightClickBlock("redTeamJoin")) {
+		Actions.teleportPlayers("redTeamBase");
+	}
+	
+	if (Conditions.didRightClickBlock("blueTeamJoin")) {
+		Actions.teleportPlayers("blueTeamBase");
+	}
     
   }
   
   @Override
   public void onJoinedServer(){
+	  
+	// Spawns players at game start at the command block name 'lobbySpawn'
+	Actions.teleportPlayers("lobbySpawn");
     
   }
   
@@ -30,6 +42,9 @@ public class Player extends PlayerData {
   
   @Override
   public void onRespawned() {
+	  
+	// Spawns players at respawn at the command block name 'lobbySpawn'  
+	Actions.teleportPlayers("lobbySpawn");
     
   }
   
