@@ -1,0 +1,308 @@
+//===================================================================================
+//  FTP Server Configuration
+//===================================================================================
+def server = ""
+def user = ""
+def password = ""
+
+// Additonal Configuration
+def port = "21"
+def modsFolder = "/mods"
+def worldFolder = "/world"
+
+//===================================================================================
+//    Do not edit anything below
+//===================================================================================
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'de.undercouch:gradle-download-task:3.3.0'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+repositories {
+    maven {
+        url "http://dl.youthdigital.com/SD15/maven/"
+    }
+}
+
+version = "1.0"
+group = "myservermod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "myservermod"
+
+sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = "1.6"
+}
+
+minecraft {
+    version = "1.11.2-13.20.1.2425"
+    runDir = "run"
+
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_20161220"
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+}
+
+
+configurations {
+    ftpAntTask
+}
+
+apply plugin: 'de.undercouch.download'
+import de.undercouch.gradle.tasks.download.Download
+
+dependencies {
+
+	//compile files("libs/serverapi-1.0.jar")
+
+    ftpAntTask("org.apache.ant:ant-commons-net:1.8.4") {
+        module("commons-net:commons-net:1.4.1") {
+            dependencies "oro:oro:2.0.8:jar"
+        }
+    }
+
+    // you may put jars on which you depend on in ./libs
+    // or you may define them like so..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+
+    // real examples
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
+    // except that these dependencies get remapped to your current MCP mappings
+    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+	deobfCompile "com.youthdigital:serverapi:1.0"
+
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+ant.lifecycleLogLevel = "VERBOSE"
+task publishMod {
+    doLast {
+        if ( !server || !user || !password ) {
+            ant.fail(
+                '====================================================\n'
+                + '\n'
+                + '  Cannot publish your mod! You did not \n'
+                + '  setup the build.gradle file with the\n'
+                + '  FTP account information.'
+                + '\n\n'
+                + '  Set the FTP Server Configuration values at the\n'
+                + '  top of the build.gradle file.\n'
+                + '\n'
+                + '====================================================\n'
+            )
+        }
+
+    	println '\n'
+    	println '===================================================='
+    	println '  Publishing your mod'
+    	println '===================================================='
+
+		download {
+        		src 'https://dl.youthdigital.com/SD15/maven/com/youthdigital/serverapi/1.0/serverapi-1.0.jar'
+        		dest 'ydlibs'
+    		}
+
+        ant {
+            taskdef(name: 'ftp',
+                    classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
+                    classpath: configurations.ftpAntTask.asPath)
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${modsFolder}", action: "mkdir", passive: "true")
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${modsFolder}", passive: "true") {
+                fileset(dir: "build/libs") {
+                    include(name: "myservermod-1.0.jar")
+                }
+                fileset(dir: "ydlibs") {
+                    include(name: "serverapi-1.0.jar")
+                }
+            }
+        }
+    }
+}
+
+task publishWorld {
+    doLast {
+        if ( !server || !user || !password ) {
+            ant.fail(
+                '====================================================\n'
+                + '\n'
+                + '  Cannot publish your world! You did not \n'
+                + '  setup the build.gradle file with the\n'
+                + '  FTP account information.'
+                + '\n\n'
+                + '  Set the FTP Server Configuration values at the\n'
+                + '  top of the build.gradle file.\n'
+                + '\n'
+                + '====================================================\n'
+            )
+        }
+
+    	println '\n'
+    	println '===================================================='
+    	println '  Publishing your world'
+    	println '===================================================='
+
+        ant {
+            taskdef(name: 'ftp',
+                    classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
+                    classpath: configurations.ftpAntTask.asPath)
+
+
+			// Copy the world files
+			ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${worldFolder}", action: "mkdir", passive: "true")
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${worldFolder}", passive: "true") {
+                fileset(dir: "run/world") {
+                    include(name: "**")
+                }
+            }
+        }
+    }
+}
+
+task publishModAndWorld {
+    doLast {
+        if ( !server || !user || !password ) {
+            ant.fail(
+                '====================================================\n'
+                + '\n'
+                + '  Cannot publish your mod and world! You did not \n'
+                + '  setup the build.gradle file with the\n'
+                + '  FTP account information.'
+                + '\n\n'
+                + '  Set the FTP Server Configuration values at the\n'
+                + '  top of the build.gradle file.\n'
+                + '\n'
+                + '====================================================\n'
+            )
+        }
+
+    	println '\n'
+    	println '===================================================='
+    	println '  Publishing your mod'
+    	println '===================================================='
+
+		download {
+        		src 'https://dl.youthdigital.com/SD15/maven/com/youthdigital/serverapi/1.0/serverapi-1.0.jar'
+        		dest 'ydlibs'
+    		}
+
+        ant {
+            taskdef(name: 'ftp',
+                    classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
+                    classpath: configurations.ftpAntTask.asPath)
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${modsFolder}", action: "mkdir", passive: "true")
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${modsFolder}", passive: "true") {
+                fileset(dir: "build/libs") {
+                    include(name: "myservermod-1.0.jar")
+                }
+                fileset(dir: "ydlibs") {
+                    include(name: "serverapi-1.0.jar")
+                }
+            }
+        }
+
+    	println '\n'
+    	println '===================================================='
+    	println '  Publishing your world'
+    	println '===================================================='
+
+        ant {
+            taskdef(name: 'ftp',
+                    classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
+                    classpath: configurations.ftpAntTask.asPath)
+
+
+			// Copy the world files
+			ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${worldFolder}", action: "mkdir", passive: "true")
+
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", remoteDir: "${worldFolder}", passive: "true") {
+                fileset(dir: "run/world") {
+                    include(name: "**")
+                }
+            }
+        }
+    }
+}
+
+task overwriteWorldFromServer {
+    doLast {
+        if ( !server || !user || !password ) {
+            ant.fail(
+                '====================================================\n'
+                + '\n'
+                + '  Cannot overwrite your world from the server! You did not \n'
+                + '  setup the build.gradle file with the\n'
+                + '  FTP account information.'
+                + '\n\n'
+                + '  Set the FTP Server Configuration values at the\n'
+                + '  top of the build.gradle file.\n'
+                + '\n'
+                + '====================================================\n'
+            )
+        }
+
+    	println '\n'
+    	println '=============================================================='
+    	println '  Overwriting your local world with the one from the server'
+    	println '=============================================================='
+
+        ant {
+            taskdef(name: 'ftp',
+                    classname: 'org.apache.tools.ant.taskdefs.optional.net.FTP',
+                    classpath: configurations.ftpAntTask.asPath)
+
+            // Copy the world files from the server to local dir
+            ftp(server: "${server}", userid: "${user}", password: "${password}", port: "${port}", action:"get", passive: "true") {
+                fileset(dir: "run") {
+                    include(name: "**/${worldFolder}/")
+                }
+            }
+
+        }
+    }
+}
